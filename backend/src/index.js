@@ -6,7 +6,7 @@ import app from "./app.js";
 
 dotenv.config();
 
-// Connect to MongoDB and start the server
+// Connect to MongoDB and start the server only after a successful connection. Handle any connection errors gracefully.
 
 connectDB()
 .then(() => {
@@ -14,6 +14,8 @@ connectDB()
     console.error('Server error:', error);
     throw error; // Rethrow the error to be caught by the outer catch block
   });
+
+// Start the server after successful database connection and handle any server errors
 
   app.listen(process.env.PORT || 8000, () => {
     console.log(`Server running on port ${process.env.PORT || 8000}`);
