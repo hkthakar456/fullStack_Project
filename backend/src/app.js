@@ -21,11 +21,12 @@ app.use(express.static('public'));// Serve static files from the 'public' direct
 
 app.use(cookieParser());
 
+//======= Routes =======//
+import userRoutes from './routes/user.routes.js';
 
+//routes declaration
+app.use("/api/v1/users", userRoutes);  // Use the user routes for any requests to http://localhost:5000/api/v1/users/....
 
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
-});
 
 export default app;
 

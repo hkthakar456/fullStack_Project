@@ -2,9 +2,11 @@
 
 //======= asyncHandler Function using Promise Chaining =======//
 
-const asyncHandler = (requestHandler) => async (req, res, next) => {
-    Promise.resolve(requestHandler(req, res, next)).
-    catch((error) => next(error));                                      // Pass the error to the next middleware (error handling middleware)
+const asyncHandler = (requestHandler) => {
+    return (req, res, next) => {                                            // Return a new function that takes the request, response, and next middleware as arguments
+        Promise.resolve(requestHandler(req, res, next)).                    // Execute the request handler and wrap it in a Promise to handle both synchronous and asynchronous functions
+        catch((error) => next(error));                                      // If the request handler throws an error, it will be caught and passed to the next middleware (error handler)
+    }
 }
 
 
