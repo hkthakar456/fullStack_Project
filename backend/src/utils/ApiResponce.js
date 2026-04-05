@@ -1,7 +1,13 @@
 //======== configure ApiResponse class to standardize API responses across the application =======//
 
 class ApiResponse {
-    constructor(statusCode, message = "Success", data = null, errors = []) // Constructor to initialize the ApiResponse object with status code, message, data, and errors 
+    constructor(
+        statusCode, 
+        message = "Success", 
+        data = null, 
+        errors = []
+    ) // Constructor to initialize the ApiResponse object with status code, message, data, and errors 
+    
     {
         this.statusCode = statusCode; // Set the status code of the response
         this.message = message; // Set the message of the response

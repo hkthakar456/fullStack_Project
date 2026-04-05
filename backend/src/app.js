@@ -21,12 +21,25 @@ app.use(express.static('public'));// Serve static files from the 'public' direct
 
 app.use(cookieParser());
 
+app.get("/", (req, res) => {
+    console.log("🔥 ROOT HIT");
+    res.send("Working");
+});
+
 //======= Routes =======//
 import userRoutes from './routes/user.routes.js';
 
 //routes declaration
-app.use("/api/v1/users", userRoutes);  // Use the user routes for any requests to http://localhost:5000/api/v1/users/....
+app.use("/api/v1/users", userRoutes);  // Use the user routes for any requests to http://localhost:8000/api/v1/users/....
 
+app.use((err, req, res, next) => {
+    console.error("❌ ERROR:", err.message);
+
+    res.status(500).json({
+        success: false,
+        message: err.message || "Internal Server Error"
+    });
+});
 
 export default app;
 

@@ -3,7 +3,8 @@
 //======= asyncHandler Function using Promise Chaining =======//
 
 const asyncHandler = (requestHandler) => {
-    return (req, res, next) => {                                            // Return a new function that takes the request, response, and next middleware as arguments
+    return (req, res, next) => {   
+        console.log("⚙️ asyncHandler called");                                         // Return a new function that takes the request, response, and next middleware as arguments
         Promise.resolve(requestHandler(req, res, next)).                    // Execute the request handler and wrap it in a Promise to handle both synchronous and asynchronous functions
         catch((error) => next(error));                                      // If the request handler throws an error, it will be caught and passed to the next middleware (error handler)
     }

@@ -5,7 +5,7 @@ import bcrypt from "bcrypt"; // for hashing passwords and comparing hashed passw
 
 const userSchema = new Schema(
     {
-        name: {
+        userName: {
             type: String,
             required: true,
             unique: true,
@@ -33,11 +33,11 @@ const userSchema = new Schema(
         converImage:{
             type: String, // cloudeinary url
         },
-        watchHistory:{
-            typr: Schema.Types.ObjectId,
+        watchHistory: [{
+            type: Schema.Types.ObjectId,
             ref: 'Video',
-        },
-        Password: {
+        }],
+        password: {
             type: String,
             required: [true, "Password is required"],
         },
