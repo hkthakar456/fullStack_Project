@@ -3,27 +3,40 @@
 //======= asyncHandler Function using Promise Chaining =======//
 
 const asyncHandler = (requestHandler) => {
-    return (req, res, next) => {   
-        console.log("⚙️ asyncHandler called");                                         // Return a new function that takes the request, response, and next middleware as arguments
-        Promise.resolve(requestHandler(req, res, next)).                    // Execute the request handler and wrap it in a Promise to handle both synchronous and asynchronous functions
-        catch((error) => next(error));                                      // If the request handler throws an error, it will be caught and passed to the next middleware (error handler)
-    }
-}
+    return (req, res, next) => {
+        Promise.resolve(requestHandler(req, res, next))
+            .catch((err) => {
+                console.error("❌ ERROR:", err.message);
+
+                res.status(err.statusCode || 500).json({
+                    success: false,
+                    message: err.message || "Internal Server Error"
+                });
+            });
+    };
+};
 
 
 
 //======= asyncHandler Function using Try-Catch =======//
 
-// const asyncHandler = (requestHandler) => async (req, res, next) => {
-//     try {
-//         await requestHandler(req, res, next);
-//     } catch (error) {
-//         res.status(error.code || 500).json({
-//             success: false,                                          // respond immediately with the error message and status code (default to 500 if not provided)
-//             message: error.message || "Internal Server Error", 
-//         });       
-//     }
-// }
+// const asyncHandler = (requestHandler) => {
+//     return async (req, res, next) => {
+//         try {
+//             await requestHandler(req, res, next);
+//         } catch (error) {
+//             if (typeof next === "function") {
+//                 next(error);
+//             } else {
+//                 console.error("❌ NEXT IS UNDEFINED:", error.message);
+//                 res.status(500).json({
+//                     success: false,
+//                     message: error.message
+//                 });
+//             }
+//         }
+//     };
+// };
 
 
 export {asyncHandler};

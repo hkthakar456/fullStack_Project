@@ -32,10 +32,11 @@ import userRoutes from './routes/user.routes.js';
 //routes declaration
 app.use("/api/v1/users", userRoutes);  // Use the user routes for any requests to http://localhost:8000/api/v1/users/....
 
+
 app.use((err, req, res, next) => {
     console.error("❌ ERROR:", err.message);
 
-    res.status(500).json({
+    res.status(err.statusCode || 500).json({
         success: false,
         message: err.message || "Internal Server Error"
     });

@@ -30,7 +30,7 @@ const userSchema = new Schema(
             type: String, // cloudeinary url
             required: true,
         },
-        converImage:{
+        coverImage:{
             type: String, // cloudeinary url
         },
         watchHistory: [{
@@ -41,7 +41,7 @@ const userSchema = new Schema(
             type: String,
             required: [true, "Password is required"],
         },
-        RefreshToken: {
+        refreshToken: {
             type: String,
         }
     },
@@ -50,15 +50,14 @@ const userSchema = new Schema(
     }
 )
 
-userSchema.pre("save", async function (next) {
-    if (this.isModified("Password")) {
-        this.Password = await bcrypt.hash(this.Password, 10);
+userSchema.pre("save", async function () {
+    if (this.isModified("password")) {
+        this.password = await bcrypt.hash(this.password, 10);
     }
-    next();
 }); // Pre-save hook to hash the password before saving the user document
 
 userSchema.methods.isPasswordCorrect = async function (password) {
-    return await bcrypt.compare(password, this.Password);
+    return await bcrypt.compare(password, this.password);
 }; // Method to compare a plain text password with the hashed password stored in the database. It returns true || false.
 
 userSchema.methods.generateAccessToken = function () {
@@ -66,7 +65,7 @@ userSchema.methods.generateAccessToken = function () {
         { 
             email: this.email,
             userId: this._id,
-            name: this.name,
+            userName: this.userName,
             fullName: this.fullName,
         }, 
 

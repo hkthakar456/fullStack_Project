@@ -1,11 +1,22 @@
+console.log("🚀 STARTING SERVER...");
+
 import dotenv from "dotenv";
-import connectDB from "./database/index.js";
+
 import app from "./app.js";
+console.log("✅ app loaded");
+
+import connectDB from "./database/index.js";
+console.log("✅ DB file loaded");
+
 
 // Load environment variables from .env file
 
-dotenv.config();
+dotenv.config({
+  path: "./.env",
+});
 
+
+// console.log("ENV:", process.env.MONGODB_URI);
 // Connect to MongoDB and start the server only after a successful connection. Handle any connection errors gracefully.
 
 connectDB()
