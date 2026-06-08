@@ -4,6 +4,28 @@ import { User } from "../models/user.model.js";
 import { ApiResponse } from "../utils/ApiResponce.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 
+const generatAccsessTokenAndRefreshToken = async (userID) => {
+    try {
+
+       const user = await User.findById(userID);
+        const accessToken = user.generateAccessToken();
+        const refreshToken = user.generateRefreshToken();
+
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false }); // Save the user document with the new refresh token without running validation checks since we are only updating the refresh token field.
+
+        return { accessToken, refreshToken }; 
+
+    } catch (error) {
+
+        throw new ApiError(500, "Failed to generate tokens", [
+            error.message || "An error occurred while generating tokens"
+
+        ]);
+    }
+};
+
+
 const registerUser = asyncHandler(async (req, res) => {
 
     // Steps (Algorithm) to implement user registration:
@@ -115,7 +137,107 @@ const registerUser = asyncHandler(async (req, res) => {
 
 
 });
- 
+
+const loginUser = asyncHandler(async (req, res) => {
+    
+     // Steps (Algorithm) to implement user login:
+
+    // 1.get user details from frontend
+    // 2.validation - not empty
+    // 3.check if user exist: username or email
+    // 4.compare password
+    // 5.generate access token and refresh token
+    // 6.save refresh token in database
+    // 7.return response by cookie, if not throw an error
+
+//===============================================================================================================//
+
+    // throw new Error("🔥 TEST ERROR");
+    console.log("🔥 INSIDE CONTROLLER"); // for debugging purposes
+
+//===============================================================================================================//
+
+    // 1. Get user details from the request body
+
+    const { userName, email, password } = req.body; // Destructure the user details from the request body
+
+    // console.log(req.body);
+
+    // console.log("User login details:", { userName, email, password });
+
+//===============================================================================================================//
+
+    // 2. Validate the user details - check if any field is missing
+
+    if ((!userName && !email) || !password) {
+        throw new ApiError(400, "Username or email and password are required", [
+            !userName && !email && "Either username or email is required",
+            !password && "Password is required"
+        ]);
+    }
+
+//===============================================================================================================//
+
+    //3. Check if a user with the provided username or email exists in the database
+
+    const user = await User.findOne({
+        $or: [{ email }, { userName: userName?.toLowerCase() }] 
+    });  // Query the database to find a user with the provided email or username using the $or operator to check both fields in a single query for efficiency. The username is converted to lowercase to ensure case-insensitive matching.
+
+    if (!user) {
+        throw new ApiError(404, "User not found", [
+            email && "No user found with the provided email",
+            userName && "No user found with the provided username"
+        ]);
+    }
+
+//===============================================================================================================//
+
+    // 4. Compare the provided password with the stored hashed password in the database
+
+    const isPasswordValid = await user.isPasswordCorrect(password); // Use the isPasswordCorrect method defined in the User model. Use user instead of User because User is mongoose model and user is the document instance retrieved from the database, which has access to the instance methods defined in the schema.
+
+    if (!isPasswordValid) {
+        throw new ApiError(401, "Invalid password", [
+            "The provided password is incorrect"
+        ]);
+    }
+
+//===============================================================================================================//
+
+    // 5. Generate access token and refresh token
+    // 6. Save the refresh token in the database
+
+    const { accessToken, refreshToken } = await generatAccsessTokenAndRefreshToken(user._id); // Call the helper function to generate access and refresh tokens for the authenticated user and save the refresh token to the database. Pass the user's unique identifier (user._id) to the function to generate tokens specific to that user.
+
+//===============================================================================================================//
+
+    // 7. Return the access token and refresh token in the response as cookies and also include them in the response body for client-side use
+
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken"); // Fetch the logged-in user details from the database and exclude the password and refresh token fields from the response
+
+    const options = {
+        httpOnly: true, // Set the cookie to be accessible only by the server to prevent client-side scripts from accessing it, which enhances security against XSS attacks
+        secure: true, // Set the cookie to be sent only over HTTPS connections to ensure that the token is encrypted during transmission
+        sameSite: "strict", // Set the SameSite attribute to 'strict' to prevent the browser from sending the cookie along with cross-site requests, which helps protect against CSRF attacks
+        maxAge: 7 * 24 * 60 * 60 * 1000 // Set the cookie to expire after 7 days (in milliseconds)
+    };
+
+    return res.status(200)
+        .cookie("accessToken", accessToken, options) // Set the access token as a cookie in the response with the defined options for security and expiration
+        .cookie("refreshToken", refreshToken, { ...options, maxAge: 10 * 24 * 60 * 60 * 1000 }) // Set the refresh token as a cookie with a longer expiration time than the access token
+        .json(
+            new ApiResponse(
+                200, 
+                "User logged in successfully", 
+                { user: loggedInUser, accessToken, refreshToken }
+            )
+        ); // Return a JSON response with the logged-in user details, access token, and refresh token in the response body for client-side use so that the client can store the tokens in local storage or use them for subsequent API requests as needed.
+
+}); 
+
+
 export {
-    registerUser
+    registerUser,
+    loginUser
 };
