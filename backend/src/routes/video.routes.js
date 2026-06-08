@@ -1,6 +1,17 @@
 import express from "express";
 
-import { uploadVideo, getAllVideos, getVideoById, deleteVideo, updateVideo, togglePublishStatus, getMyVideos, updateVideoFile, updateThumbnail} from "../controllers/video.controller.js";
+import {
+  uploadVideo,
+  getAllVideos,
+  getVideoById,
+  deleteVideo,
+  updateVideo,
+  togglePublishStatus,
+  getMyVideos,
+  updateVideoFile,
+  updateThumbnail,
+  getWatchHistory
+} from "../controllers/video.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { videoUpload } from "../middlewares/videoUpload.middleware.js";
 
@@ -95,5 +106,11 @@ router.route("/video/:videoId/update-thumbnail").put(
     videoUpload.single("thumbnail"),
     updateThumbnail
 );
+
+//=============================================================================================================//
+
+// 10. Get Watch History
+
+router.route("/watch-history").get(verifyJWT, getWatchHistory);
 
 export default router;

@@ -3,7 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponce.js";
 
 import { Video } from "../models/video.model.js";
-
+import { User } from "../models/user.model.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 
 
@@ -235,7 +235,22 @@ const getVideoById = asyncHandler(async (req, res) => {
 
 //=============================================================================================================//
 
-// 3. Increase views
+// 3. Add video to watch history if user is logged in and Increase views
+
+    if (req.user?._id) {
+
+        await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                $push: {
+                    watchHistory: {
+                        video: videoId,
+                        watchedAt: new Date()
+                    }
+                }
+            }
+        );
+    }
 
     video.views += 1;
 
@@ -732,6 +747,63 @@ const updateThumbnail = asyncHandler(async (req, res) => {
     );
 });
 
+const getWatchHistory = asyncHandler(async (req, res) => {
+
+    // Steps (Algorithm)
+
+    // 1. Get logged in user
+    // 2. Populate watch history and video owner details
+    // 3. Sort watch history by watchedAt in descending order
+    // 4. Return response
+
+//=============================================================================================================//
+
+// 1. Get logged in user
+// 2. Populate watch history and video owner details
+    const user = await User.findById(
+
+        req.user._id
+
+    ).populate({
+
+        path: "watchHistory",
+
+        populate: {
+            path: "owner",
+            select:
+                "fullName userName avatar"
+        }
+    });
+
+    if (!user) {
+
+        throw new ApiError(
+            404,
+            "User not found"
+        );
+    }
+
+//=============================================================================================================//
+
+// 3. Sort watch history by watchedAt in descending order
+
+    const watchHistory =[...user.watchHistory]
+        .sort((a, b) => b.watchedAt - a.watchedAt);
+
+//=============================================================================================================//
+
+// 4. Return response
+
+    return res.status(200).json(
+
+        new ApiResponse(
+            200,
+            "Watch history fetched successfully",
+            user.watchHistory
+        )
+    );
+});
+
 export {
     uploadVideo,
     getAllVideos,
@@ -741,5 +813,6 @@ export {
     togglePublishStatus,
     getMyVideos,
     updateVideoFile,
-    updateThumbnail
+    updateThumbnail,
+    getWatchHistory
 };
