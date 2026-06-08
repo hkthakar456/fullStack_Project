@@ -9,15 +9,31 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// This function uploads a file to Cloudinary and then deletes the local file after the upload is complete to free up server storage space. It also handles errors gracefully by ensuring that the local file is deleted even if the upload fails, and it returns null in case of an error to indicate that the upload was unsuccessful.
+//=============================================================================================================//
+
+// Steps to upload file to Cloudinary
+
+// 1. Validate local file path
+// 2. Upload file to Cloudinary
+// 3. Delete local file after successful upload
+// 4. Return Cloudinary response
+// 5. Handle errors and delete local file if upload fails
 
 const uploadToCloudinary = async (localFilePath) => {
   try {
+
+  //=============================================================================================================//
+
+  // 1. Validate local file path
 
     if (!localFilePath) {
       console.error('File path is required for uploading to Cloudinary');
       return null; // Return null if the file path is not provided to indicate that the upload cannot proceed without a valid file path
     }
+
+  //=============================================================================================================//
+
+  // 2. Upload file to Cloudinary
 
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: 'auto', // Automatically detect the resource type (image, video, etc.)
@@ -25,12 +41,29 @@ const uploadToCloudinary = async (localFilePath) => {
 
     // console.log('File uploaded to Cloudinary successfully, deleting local file present at:', response.url);
 
-    fs.unlinkSync(localFilePath); // Delete the local file after successful upload to free up server storage space
+  //=============================================================================================================//
 
+  // 3. Delete local file after successful upload
+    
+    if (fs.existsSync(localFilePath)) {
+      fs.unlinkSync(localFilePath);
+    }; // Delete the local file after successful upload to free up server storage space
+
+  //=============================================================================================================//
+
+  // 4. Return the response from Cloudinary which contains details about the uploaded file, including its URL, public ID, etc.
+  
     return response;
 
   } catch (error) {
-    fs.unlinkSync(localFilePath); // Ensure that the local file is deleted even if there is an error during upload
+
+  //=============================================================================================================//
+
+  // 5. Handle errors and delete local file if upload fails to ensure that temporary files do not accumulate on the server in case of upload failures
+
+    if (fs.existsSync(localFilePath)) {
+      fs.unlinkSync(localFilePath);
+    }; // Ensure that the local file is deleted even if there is an error during upload
     console.error('Error uploading to Cloudinary:', error);
 
     return null; // Return null in case of an error to indicate that the upload was unsuccessful
@@ -39,3 +72,5 @@ const uploadToCloudinary = async (localFilePath) => {
 
 
 export {uploadToCloudinary};
+
+

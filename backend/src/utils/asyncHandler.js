@@ -4,15 +4,11 @@
 
 const asyncHandler = (requestHandler) => {
     return (req, res, next) => {
-        Promise.resolve(requestHandler(req, res, next))
-            .catch((err) => {
-                console.error("❌ ERROR:", err.message);
-
-                res.status(err.statusCode || 500).json({
-                    success: false,
-                    message: err.message || "Internal Server Error"
-                });
-            });
+        try {
+            await requestHandler(req, res, next); // Await the execution of the request handler
+        } catch (error) {
+            next(error);// Pass any errors to the next middleware (error handling middleware)
+        } 
     };
 };
 

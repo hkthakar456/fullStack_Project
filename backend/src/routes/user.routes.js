@@ -1,11 +1,19 @@
 import express from "express";
-import { registerUser } from "../controllers/user.controller.js";
+
+import {
+    registerUser,
+    loginUser,
+    logoutUser,
+    refreshAccessToken
+} from "../controllers/user.controller.js";
+
+import { verifyJWT } from "../middlewares/auth.middleware.js";
+
 import { upload } from "../middlewares/multer.middleware.js";
 
 const router = express.Router();
 
-router.post(
-  "/register",
+router.route("/register").post(
   (req, res, next) => {
     console.log("✅ ROUTE HIT");
     next();
@@ -23,10 +31,18 @@ router.post(
   registerUser
 );
 
+router.route("/login").post((req, res) => {
+  res.send("Login route hit");
+  next();
+}, loginUser);
 
-// router.post("/register", registerUser);
+router.route("/refresh-token").post(
+    refreshAccessToken
+);
 
-// router.route("/login").post(loginUser);
-// router.route("/logout").post(logoutUser);
+router.route("/logout").post(
+    verifyJWT,
+    logoutUser
+);
 
 export default router;

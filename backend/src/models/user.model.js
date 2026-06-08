@@ -15,6 +15,7 @@ const userSchema = new Schema(
         },
         email: {
             type: String,
+            match: [/^\S+@\S+\.\S+$/, "Invalid Email"],
             required: true,
             unique: true,
             lowercase: true,
@@ -50,10 +51,21 @@ const userSchema = new Schema(
     }
 )
 
-userSchema.pre("save", async function () {
-    if (this.isModified("password")) {
-        this.password = await bcrypt.hash(this.password, 10);
-    }
+// userSchema.pre("save", async function () {
+//     if (this.isModified("password")) {
+//         this.password = await bcrypt.hash(this.password, 10);
+//     }
+// }); 
+// 
+
+userSchema.pre("save", async function (next) {
+
+    if (!this.isModified("password"))
+        return next();
+
+    this.password = await bcrypt.hash(this.password, 10);
+
+    next();
 }); // Pre-save hook to hash the password before saving the user document
 
 userSchema.methods.isPasswordCorrect = async function (password) {
@@ -72,7 +84,7 @@ userSchema.methods.generateAccessToken = function () {
         process.env.ACCESS_TOKEN_SECRET, 
         
         { 
-            expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN || '1D' 
+            expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN || '1d' 
         }
     );
 }; // Method to generate a JWT access token for the user.
@@ -86,7 +98,7 @@ userSchema.methods.generateRefreshToken = function () {
         process.env.REFRESH_TOKEN_SECRET, 
         
         { 
-            expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '10D' 
+            expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '10d' 
         }
     );
 }; // Method to generate a JWT refresh token for the user.

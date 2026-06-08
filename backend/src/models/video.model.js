@@ -22,11 +22,27 @@ const videoSchema = new Schema(
         duration: {
             type: Number, // cloudeinary url
             required: true,
-        },
+        }, // Video duration in seconds
+        // This will be automatically fetched from Cloudinary
         views: {
             type: Number,
             default: 0,
         },
+        likesCount: {
+            type:Number,
+            default:0
+        },
+        commentsCount: {
+            type:Number,
+            default:0
+        },
+        tags: [{
+            type: String,
+        }],
+        category:{
+            type: String,
+        },
+
         isPublished: {
             type: Boolean,
             default: true,

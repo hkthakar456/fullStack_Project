@@ -13,6 +13,7 @@ class ApiError extends Error {
         this.message = message; // Set the error message
         this.success = false; // Set the success flag to false
         this.errors = errors; // Set the errors array (if provided)
+        this.success = false; // Set the success flag to false (indicating an error occurred)
 
         if (stack) {
             this.stack = stack; // Set the stack trace if provided
