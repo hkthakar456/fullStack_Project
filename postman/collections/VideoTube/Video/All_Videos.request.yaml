@@ -1,0 +1,4 @@
+$kind: http-request
+url: http://localhost:5000/api/v1/videos/all-videos
+method: GET
+order: 3319210292835679

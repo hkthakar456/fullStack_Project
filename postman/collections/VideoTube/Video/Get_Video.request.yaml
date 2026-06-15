@@ -1,0 +1,8 @@
+$kind: http-request
+url: http://localhost:5000/api/v1/videos/video/6a2fa1300cb152e5445a0900
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: ""
+order: 3659622724202266

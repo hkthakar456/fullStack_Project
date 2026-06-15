@@ -75,6 +75,8 @@ const registerUser = asyncHandler(async (req, res) => {
 
     // 3. Check if a user with the same email or username already exists in the database
 
+    console.log("STEP 1");
+
     const existingUser = await User.findOne({ $or: [{ email }, { userName }] });  // Query the database to find a user with the same email or username using the $or operator to check both fields in a single query for efficiency
 
     if (existingUser) {
@@ -97,6 +99,8 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Avatar file is required");
     }
 
+    console.log("STEP 2");
+
     const avatar = await uploadToCloudinary(avatarLocalPath, "videoTube/avatars"); // Upload the avatar image to Cloudinary and get the response which contains details about the uploaded file, including its URL, public ID, etc.
     const coverImage = coverImageLocalPath ? await uploadToCloudinary(coverImageLocalPath, "videoTube/coverImages") : null;  // Upload the cover image to Cloudinary only if a cover image file was provided in the request. If no cover image is uploaded, the coverImage variable will be set to null, and the user document will be created without a cover image URL.
 
@@ -108,6 +112,8 @@ const registerUser = asyncHandler(async (req, res) => {
 
     // 5. Create a new user object and save it to the database
 
+    console.log("STEP 3");
+    
     const user = await User.create({
         fullName,
         userName: userName.trim().toLowerCase(),           // It's good practice to ensure username is lowercase to avoid duplicates like 'Test' and 'test'
@@ -121,6 +127,9 @@ const registerUser = asyncHandler(async (req, res) => {
 
     // 6. remove password and refresh token from the response
     // 7. check if user created successfully
+    
+    console.log("STEP 4");
+    
     const createdUser = await User.findById(user._id).select("-password -refreshToken"); // Fetch the created user from the database and exclude the password and refresh token fields from the response
 
     if (!createdUser) {
@@ -160,6 +169,10 @@ const loginUser = asyncHandler(async (req, res) => {
 
     // 1. Get user details from the request body
 
+    console.log("LOGIN STEP 1");
+
+    console.log("BODY =", req.body);
+
     const { userName, email, password } = req.body; // Destructure the user details from the request body
 
     // console.log(req.body);
@@ -196,6 +209,8 @@ const loginUser = asyncHandler(async (req, res) => {
 
     // 4. Compare the provided password with the stored hashed password in the database
 
+    console.log("LOGIN STEP 2");
+
     const isPasswordValid = await user.isPasswordCorrect(password); // Use the isPasswordCorrect method defined in the User model. Use user instead of User because User is mongoose model and user is the document instance retrieved from the database, which has access to the instance methods defined in the schema.
 
     if (!isPasswordValid) {
@@ -209,13 +224,19 @@ const loginUser = asyncHandler(async (req, res) => {
     // 5. Generate access token and refresh token
     // 6. Save the refresh token in the database
 
+    console.log("LOGIN STEP 3");
+
     const { accessToken, refreshToken } = await generatAccsessTokenAndRefreshToken(user._id); // Call the helper function to generate access and refresh tokens for the authenticated user and save the refresh token to the database. Pass the user's unique identifier (user._id) to the function to generate tokens specific to that user.
 
 //===============================================================================================================//
 
     // 7. Return the access token and refresh token in the response as cookies and also include them in the response body for client-side use
 
+    console.log("LOGIN STEP 4");
+
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken"); // Fetch the logged-in user details from the database and exclude the password and refresh token fields from the response
+
+    console.log("LOGIN STEP 5");
 
     const options = {
         httpOnly: true, // Set the cookie to be accessible only by the server to prevent client-side scripts from accessing it, which enhances security against XSS attacks
@@ -223,6 +244,8 @@ const loginUser = asyncHandler(async (req, res) => {
         sameSite: "strict", // Set the SameSite attribute to 'strict' to prevent the browser from sending the cookie along with cross-site requests, which helps protect against CSRF attacks
         maxAge: 7 * 24 * 60 * 60 * 1000 // Set the cookie to expire after 7 days (in milliseconds)
     };
+
+    console.log("LOGIN STEP 6");
 
     return res.status(200)
         .cookie("accessToken", accessToken, options) // Set the access token as a cookie in the response with the defined options for security and expiration

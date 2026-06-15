@@ -1,6 +1,8 @@
 import multer from 'multer';
 import path from 'path';
 
+//=============================================================================================================//
+
 const storage = multer.diskStorage({
   //steps to configure multer storage
 
@@ -22,29 +24,21 @@ const storage = multer.diskStorage({
 
 });
 
+//=============================================================================================================//
+
 const upload = multer({
-    storage: storage,
+
+    storage,
+
     limits: {
-        fileSize: 50 * 1024 * 1024, // 50 MB file size limit
-    },
-    fileFilter: function (req, file, cb) {
 
-        const allowedMimeTypes = [
-            "image/jpeg",
-            "image/jpg",
-            "image/png",
-            "image/webp"
-        ];
+        // 500 MB
 
-        if (allowedMimeTypes.includes(file.mimetype))
-        {
-            cb(null, true);
-        } 
-        else 
-        {
-            cb(new Error("Only image files are allowed"), false);
-        }
-    } // Allow only image files for avatar and cover image uploads
+        fileSize:
+            500 * 1024 * 1024,
+    }
 });
 
-export {upload};
+//=============================================================================================================//
+
+export { upload };

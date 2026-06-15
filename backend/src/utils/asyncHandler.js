@@ -3,7 +3,7 @@
 //======= asyncHandler Function using Promise Chaining =======//
 
 const asyncHandler = (requestHandler) => {
-    return (req, res, next) => {
+    return async (req, res, next) => {
         try {
             await requestHandler(req, res, next); // Await the execution of the request handler
         } catch (error) {

@@ -32,6 +32,7 @@ import userRoutes from './routes/user.routes.js';
 import videoRoutes from "./routes/video.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
 import likeRoutes from "./routes/like.routes.js";
+import followRoutes from "./routes/follow.routes.js";
 
 //routes declaration
 app.use("/api/v1/users", userRoutes);  // Use the user routes for any requests to http://localhost:8000/api/v1/users/....
@@ -42,10 +43,16 @@ app.use("/api/v1/comments", commentRoutes); // Use the comment routes for any re
 
 app.use("/api/v1/likes", likeRoutes); // Use the like routes for any requests to http://localhost:8000/api/v1/likes/....
 
+app.use("/api/v1/follows", followRoutes); // Use the follow routes for any requests to http://localhost:8000/api/v1/follows/....
+
 //======= Global Error Handler =======//
 
 app.use((err, req, res, next) => {
     console.error("❌ ERROR:", err.message);
+
+    if (res.headersSent) {
+        return next(err);
+    }
 
     res.status(err.statusCode || 500).json({
         success: false,

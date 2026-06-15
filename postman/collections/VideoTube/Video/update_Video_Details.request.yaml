@@ -1,0 +1,30 @@
+$kind: http-request
+name: update_Video_Details
+url: http://localhost:5000/api/v1/videos/video/6a2fa1300cb152e5445a0900/updateVideoDetails
+method: PUT
+body:
+  type: json
+  content: "// {\r
+
+    //     \"title\": \"React Tutorial Updated\"\r
+
+    // }\r
+
+    // {\r
+
+    //     \"description\": \"Advanced React Course\"\r
+
+    // }\r
+
+    {\r
+
+    \    \"title\": \"React Masterclass\",\r
+
+    \    \"description\": \"Learn React from beginner to advanced\"\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhrdGhha2FyNDU2QGdtYWlsLmNvbSIsInVzZXJJZCI6IjZhMmQwNGM2NTAzZjk3NTNhOTM5OWM0OSIsInVzZXJOYW1lIjoiaGt0MDQ1NiIsImZ1bGxOYW1lIjoiSGFyc2giLCJpYXQiOjE3ODE1MDYzMjQsImV4cCI6MTc4MTU5MjcyNH0.1r_qXH-JktE-csANwwCkEFgw2Nnqquqr4rlhY0KWPvY
+order: 4493165204148230

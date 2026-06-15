@@ -5,12 +5,13 @@ import {
   getAllVideos,
   getVideoById,
   deleteVideo,
-  updateVideo,
+  updateVideoDetails,
   togglePublishStatus,
   getMyVideos,
   updateVideoFile,
   updateThumbnail,
-  getWatchHistory
+  getWatchHistory,
+  updateWatchProgress,
 } from "../controllers/video.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { videoUpload } from "../middlewares/videoUpload.middleware.js";
@@ -31,23 +32,8 @@ const router = express.Router();
 // 1. Upload Video
 
 router.route("/upload-video").post(
-
-    // Verify authenticated user
-
     verifyJWT,
-
-    // Upload thumbnail and video file
-
-    videoUpload.fields([
-        {
-            name: "thumbnail",
-            maxCount: 1,
-        },
-        {
-            name: "videoFile",
-            maxCount: 1,
-        },
-    ]),
+    videoUpload,
     uploadVideo
 );
 
@@ -61,7 +47,7 @@ router.route("/all-videos").get(getAllVideos);
 
 // 3. Get Single Video By ID
 
-router.route("/video/:videoId").get(getVideoById);
+router.route("/video/:videoId").get(verifyJWT, getVideoById);
 
 //=============================================================================================================//
 
@@ -71,29 +57,29 @@ router.route("/video/:videoId").delete(verifyJWT, deleteVideo);
 
 //=============================================================================================================//
 
-// 5. Update Video
+// 5. Update Video Details
 
-router.route("/video/:videoId").put(verifyJWT, updateVideo);
+router.route("/video/:videoId/updateVideoDetails").put(verifyJWT, updateVideoDetails);
 
 //=============================================================================================================//
 
 // 6. Toggle Publish/Unpublish Video
 
-router.route("/video/:videoId/toggle-publish").patch(verifyJWT, togglePublishStatus);
+router.route("/video/:videoId/toggle_publish").patch(verifyJWT, togglePublishStatus);
 
 //=============================================================================================================//
 
 // 7. Get My Videos
 
-router.route("/my-videos").get(verifyJWT, getMyVideos);
+router.route("/my_videos").get(verifyJWT, getMyVideos);
 
 //=============================================================================================================//
 
 // 8. Update Video File
 
-router.route("/video/:videoId/update-video-file").put(
+router.route("/video/:videoId/update_video_file").put(
     verifyJWT,
-    videoUpload.single("videoFile"),
+    videoUpload,
     updateVideoFile
 );
 
@@ -101,9 +87,9 @@ router.route("/video/:videoId/update-video-file").put(
 
 // 9. Update Thumbnail
 
-router.route("/video/:videoId/update-thumbnail").put(
+router.route("/video/:videoId/update_thumbnail").put(
     verifyJWT,
-    videoUpload.single("thumbnail"),
+    videoUpload,
     updateThumbnail
 );
 
@@ -111,6 +97,11 @@ router.route("/video/:videoId/update-thumbnail").put(
 
 // 10. Get Watch History
 
-router.route("/watch-history").get(verifyJWT, getWatchHistory);
+router.route("/watch_history").get(verifyJWT, getWatchHistory);
 
+//=============================================================================================================//
+
+// 11. Update Watch Progress
+
+router.route("/video/:videoId/update_watch_progress").post(verifyJWT, updateWatchProgress);
 export default router;

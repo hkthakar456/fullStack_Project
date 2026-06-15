@@ -1,0 +1,9 @@
+$kind: http-request
+name: My_Video
+url: http://localhost:5000/api/v1/videos/my-videos
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhrdGhha2FyNDU2QGdtYWlsLmNvbSIsInVzZXJJZCI6IjZhMmQwNGM2NTAzZjk3NTNhOTM5OWM0OSIsInVzZXJOYW1lIjoiaGt0MDQ1NiIsImZ1bGxOYW1lIjoiSGFyc2giLCJpYXQiOjE3ODE1MDYzMjQsImV4cCI6MTc4MTU5MjcyNH0.1r_qXH-JktE-csANwwCkEFgw2Nnqquqr4rlhY0KWPvY
+order: 4433343750139297

@@ -1,6 +1,6 @@
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import User from "../models/User.model.js";
+import { User } from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 
 export const verifyJWT = asyncHandler(async (req, _, next) => {
@@ -35,11 +35,17 @@ export const verifyJWT = asyncHandler(async (req, _, next) => {
       throw new ApiError(401, "Unauthorized: Invalid token"); // Return an unauthorized error if the token is invalid
     }
 
+    console.log("TOKEN:", token);
+
+    console.log("DECODED TOKEN:", decodedToken);
+
+    console.log("USER ID FROM TOKEN:",decodedToken.userId);
+    
     //=============================================================================================================//
 
     // 3. Find the user associated with the token
 
-    const user = await User.findById(decodedToken.userid).select(
+    const user = await User.findById(decodedToken.userId).select(
       "-password -refreshToken"
     ); // Attach the user information to the request object, excluding sensitive fields like password and refreshToken
 
