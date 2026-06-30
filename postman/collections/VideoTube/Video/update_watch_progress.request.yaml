@@ -1,5 +1,12 @@
 $kind: http-request
 name: update_watch_progress
-url: http://localhost:5000/api/v1/videos/video/6a2fa1300cb152e5445a0900/update_watch_progress
+url: http://localhost:5000/api/v1/videos/video/6a310d1e78db70f84a670ac5/update_watch_progress
 method: POST
+body:
+  type: json
+  content: "{\r\n    \"watchDuration\": 2\r\n}"
+auth:
+  type: bearer
+  credentials:
+    token: ""
 order: 4503481546617254

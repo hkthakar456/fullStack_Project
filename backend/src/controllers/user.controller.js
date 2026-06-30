@@ -1,9 +1,13 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
-import { User } from "../models/user.model.js";
-import { ApiResponse } from "../utils/ApiResponce.js";
-import { uploadToCloudinary } from "../utils/cloudinary.js";
+import { asyncHandler } from "../utils/helpers/asyncHandler.js";
+import { ApiError } from "../utils/helpers/ApiError.js";
+import { ApiResponse } from "../utils/helpers/ApiResponce.js";
+import { uploadToCloudinary } from "../utils/helpers/cloudinary.js";
+
 import jwt from "jsonwebtoken";
+import { User } from "../models/user.model.js";
+//=============================================================================================================//
+
+// Helper Functions
 
 const generatAccsessTokenAndRefreshToken = async (userID) => {
     try {
@@ -26,6 +30,7 @@ const generatAccsessTokenAndRefreshToken = async (userID) => {
     }
 };
 
+//=============================================================================================================//
 
 const registerUser = asyncHandler(async (req, res) => {
 

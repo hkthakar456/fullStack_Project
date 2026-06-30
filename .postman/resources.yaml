@@ -1,17 +1,9 @@
-# Use this workspace to collaborate
 workspace:
   id: 48717e7b-955c-4f8e-816f-d4cc0379a8f3
-
-# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
-
 cloudResources:
   environments:
     ..\postman\environments\VideoTube.environment.yaml: f2a69d8e-1d8a-49a9-a943-a4b65522c377
+    ../postman/environments/VideoTube.environment.yaml: 53681434-f2a69d8e-1d8a-49a9-a943-a4b65522c377
   collections:
     ..\postman\collections\VideoTube: 53681434-5228e72d-90b9-446c-97fb-c51b0445b861
-
-# All resources in the `postman/` folder are automatically registered in Local View.
-# Point to additional files outside the `postman/` folder to register them individually. Example:
-#localResources:
-#  collections:
-#    - ../tests/E2E Test Collection/
+    ../postman/collections/VideoTube: 53681434-5228e72d-90b9-446c-97fb-c51b0445b861

@@ -1,14 +1,38 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponce.js";
-
 import { Video } from "../models/video.model.js";
 import { User } from "../models/user.model.js";
-import { uploadToCloudinary } from "../utils/cloudinary.js";
 
-import { buildUserInterestProfile } from "../utils/buildUserInterestProfile.js";
-import { buildCreatorAffinityProfile } from "../utils/buildCreatorAffinityProfile.js";
-import { calculateRecommendationScore } from "../utils/calculateRecommendationScore.js";
+import { asyncHandler } from "../utils/helpers/asyncHandler.js";
+import { ApiError } from "../utils/helpers/ApiError.js";
+import { ApiResponse } from "../utils/helpers/ApiResponce.js";
+import { uploadToCloudinary } from "../utils/helpers/cloudinary.js";
+
+import { applyDiversityLayer } from "../utils/feed/applyDiversityLayer.js";
+import { assembleFeed } from "../utils/feed/assembleFeed.js";
+
+import { buildUserInterestProfile } from "../utils/recommendation/profiles/buildUserInterestProfile.js";
+import { buildCreatorAffinityProfile } from "../utils/recommendation/profiles/buildCreatorAffinityProfile.js";
+import { buildSearchClickProfile } from "../utils/recommendation/profiles/buildSearchClickProfile.js";
+import { buildLikePreferenceProfile } from "../utils/recommendation/profiles/buildLikePreferenceProfile.js";
+
+import { calculateRecommendationScore } from "../utils/recommendation/scores/calculateRecommendationScore.js";
+import { getFollowedCreators } from "../utils/recommendation/signals/getFollowedCreators.js";
+
+// import { applyRandomizationLayer } from "../utils/applyRandomizationLayer.js";
+import { isColdStartUser } from "../utils/coldStart/Metrics Layer/isColdStartUser.js";
+import { assembleColdStartFeed } from "../utils/coldStart/Assembly Layer/assembleColdStartFeed.js";
+import { buildVideoMetrics } from "../utils/coldStart/Metrics Layer/buildVideoMetrics.js";
+import { buildCandidatePool } from "../utils/coldStart/Candidate Layer/buildCandidatePool.js";
+import { buildTrendingCandidatePool } from "../utils/coldStart/Candidate Layer/buildTrendingCandidatePool.js";
+import { buildRecentCandidatePool } from "../utils/coldStart/Candidate Layer/buildRecentCandidatePool.js";
+import { buildEngagementCandidatePool } from "../utils/coldStart/Candidate Layer/buildEngagementCandidatePool.js";
+import { groupVideosByCategory } from "../utils/coldStart/Candidate Layer/groupVideosByCategory.js";
+import { buildCategoryCandidates } from "../utils/coldStart/Candidate Layer/buildCategoryCandidates.js";
+import { assembleCategoryPool } from "../utils/coldStart/Candidate Layer/assembleCategoryPool.js";
+import { buildDiscoveryCandidatePool } from "../utils/coldStart/Candidate Layer/buildDiscoveryCandidatePool.js";
+import { calculateFeedSlots } from "../utils/coldStart/Assembly Layer/calculateFeedSlots.js";
+import { applyFeedDiversification } from "../utils/coldStart/Diversification Layer/applyFeedDiversification.js";
+
+console.log("VIDEO CONTROLLER FILE LOADED");
 
 const uploadVideo = asyncHandler(async (req, res) => {
   // Steps (Algorithm) to upload video
@@ -717,6 +741,8 @@ const updateWatchProgress = asyncHandler(async (req, res) => {
 
         }
 
+        existingHistory.watchedAt = new Date();
+
     }
 
 //=============================================================================================================//
@@ -764,8 +790,7 @@ const updateWatchProgress = asyncHandler(async (req, res) => {
     );
 });
 
-const getRecommendedVideos = asyncHandler(async (req, res) => {
-
+const recommended_Videos = asyncHandler(async (req, res) => {
     // Steps (Algorithm)
 
     // 1. Get user id
@@ -776,124 +801,392 @@ const getRecommendedVideos = asyncHandler(async (req, res) => {
     // 6. Fetch candidate videos
     // 7. Calculate recommendation score for each video
     // 8. Sort videos by score
-    // 9. Return only the top 50 candidates
-    // 10. Return response
+    // 9. Remove irrelevant videos
+    // 10. Take only the top 250 candidates
+    // 11. Apply diversity layer
+    // 12. Return response
 
-//=============================================================================================================//
+    console.log("RECOMMENDATION CONTROLLER VERSION 999");
 
-    // 1. Get user id
+    //=============================================================================================================//
+
+    // 1. Get user by userId
 
     const userId = req.user._id;
 
-//=============================================================================================================//
+    const user = await User.findById(userId);
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    //=============================================================================================================//
+
+    // 2. Detect Cold Start User
+
+    const coldStartUser = isColdStartUser(user);
+
+    //=============================================================================================================//
 
     // 2. Build user interest profile
 
     const userProfile = await buildUserInterestProfile(userId);
 
-//=============================================================================================================//
+    //=============================================================================================================//
 
     // 3. Build creator affinity profile
 
     const creatorAffinity = await buildCreatorAffinityProfile(userId);
 
-//=============================================================================================================//
+    //=============================================================================================================//
 
-    // 4. Get user watch history
+    // 4. Build Like Preference Profile
 
-    const user = await User.findById(userId);
+    const likeProfile = await buildLikePreferenceProfile(userId);
 
-    if (!user) {
-        throw new ApiError(
-            404,
-            "User not found"
-        );
-    }
+    //=============================================================================================================//
 
-//=============================================================================================================//
+    // 5. Get Followed Creator
 
-    // 5. Extract watched video ids
+    const followedCreatorsList = await getFollowedCreators(userId);
 
-    const watchedVideoIds =
+    //=============================================================================================================//
 
-        user.watchHistory.map(
-            (item) => item.video.toString()
-        );
+    // 5. Build Search Profile
 
-//=============================================================================================================//
+    const searchClickProfile = buildSearchClickProfile(user.searchClickHistory);
 
-    // 6. Fetch candidate videos
+    //=============================================================================================================//
+
+    // 6. Extract videos that should be excluded
+
+    // Exclude:
+    // 1. Videos completed (>= 85% watched)
+    // 2. Videos abandoned early (<= 15% watched)
+
+    // Keep:
+    // 1. Partially watched videos
+    // 2. Continue-watching videos
+
+    //=============================================================================================================//
+
+    const excludedVideoIds = user.watchHistory
+
+        .filter(
+            (item) => item.watchPercentage >= 85 || item.watchPercentage <= 15
+        )
+        .map((item) => item.video.toString());
+
+    //=============================================================================================================//
+
+    // 7. Fetch candidate videos
+
+    // Exclude:
+    // 1. Completed videos
+    // 2. Abandoned videos
+
+    // Keep:
+    // 1. Partially watched videos
+
+    //=============================================================================================================//
 
     const candidateVideos = await Video.find({
+        isPublished: true,
 
-            isPublished: true,
+        _id: {
+            $nin: excludedVideoIds,
+        },
+    })
 
-            _id: {
-                $nin:
-                watchedVideoIds
-            }
-        })
         .populate(
             "owner",
+
             "fullName userName avatar"
         );
 
-//=============================================================================================================//
+    //=============================================================================================================//
+    // 8 .Cold Start Feed
+    
+    // Skip recommendation engine
+    // for new users.
+    
+    //=============================================================================================================//
 
-    // 7. Calculate recommendation score for each video
+    if (coldStartUser) {
+        const videos = await Video.find({
+            isPublished: true,
+        }).populate("owner", "fullName userName avatar");
 
-    const scoredVideos =
+        const coldStartFeed = buildColdStartFeed({
+            videos,
+            feedSize: 20,
+        });
 
-        candidateVideos.map(
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    coldStartFeed,
+                    "Cold start recommendations generated successfully"
+                )
+            );
+    }
+    
+    //=============================================================================================================//
 
-            (video) => {
+    // 8. Calculate recommendation score for each video
 
-                const scoreResult =
-
-                    calculateRecommendationScore(
-                        video,
-                        userProfile,
-                        creatorAffinity
-                    );
-
-                return {
-                    video,
-                    score: scoreResult.totalScore,
-                    breakdown: scoreResult.breakdown
-                };
-            }
+    const scoredVideos = candidateVideos.map((video) => {
+        const scoreResult = calculateRecommendationScore(
+            video,
+            userProfile,
+            creatorAffinity,
+            likeProfile,
+            searchClickProfile,
+            followedCreatorsList
         );
 
-//=============================================================================================================//
+        return {
+            video,
+            score: scoreResult.totalScore,
+            breakdown: scoreResult.breakdown,
+        };
+    });
 
-    // 8. Sort videos by score
+    //=============================================================================================================//
 
-    scoredVideos.sort(
-        (a, b) => b.score - a.score
+    // 9. Sort videos by score
+
+    scoredVideos.sort((a, b) => b.score - a.score);
+
+    //=============================================================================================================//
+
+    // 10. Remove irrelevant videos
+
+    const relevantVideos = scoredVideos.filter((item) => item.score > 0);
+
+    //=============================================================================================================//
+
+    // 11. Take only the top 250 candidates
+
+    const topVideos = relevantVideos.slice(0, 250);
+
+    //=============================================================================================================//
+
+    // 12. Apply Diversity Layer
+
+    const diversifiedFeed = applyDiversityLayer(topVideos);
+
+    // Feed Distribution
+
+    //=============================================================================================================//
+
+    const totalVideos = diversifiedFeed.length;
+
+    //=============================================================================================================//
+
+    const personalizedCount = Math.max(1, Math.floor(totalVideos * 0.6));
+
+    const relatedCount = Math.max(1, Math.floor(totalVideos * 0.25));
+
+    const explorationCount = Math.max(1, Math.floor(totalVideos * 0.15));
+
+    //=============================================================================================================//
+
+    // 13. Build Personalized Pool
+
+    // Top recommendation videos
+    // Most relevant content for user
+
+    const personalizedVideos = diversifiedFeed.slice(0, personalizedCount);
+
+    //=============================================================================================================//
+
+    // 14. Build Related Pool
+
+    // Medium relevance videos
+    // Still related to user interests
+    // Used later for feed mixing
+
+    const personalizedIds = new Set(
+        personalizedVideos.map((item) => item.video._id.toString())
     );
 
-//=============================================================================================================//
+    const relatedVideos = diversifiedFeed
 
-    // 9. Return only the top 50 candidates
+        .filter((item) => !personalizedIds.has(item.video._id.toString()))
+        .slice(0, relatedCount);
 
-    const topVideos = scoredVideos.slice(0, 50);
+    const relatedIds = new Set(
+        relatedVideos.map((item) => item.video._id.toString())
+    );
 
-//=============================================================================================================//
+    // 15. Build Exploration Pool
 
-    // 10. Return response
+    //=============================================================================================================//
+
+    const usedVideoIds = new Set([
+        ...personalizedVideos.map((item) => item.video._id.toString()),
+
+        ...relatedVideos.map((item) => item.video._id.toString()),
+    ]);
+
+    //=============================================================================================================//
+
+    // Extract videos which are not in UsedVideos (Personalized + Related) and add rule to add videos in exploration section
+
+    const explorationVideos = diversifiedFeed
+
+        .filter(
+            (item) =>
+                !usedVideoIds.has(item.video._id.toString()) &&
+                !relatedIds.has(item.video._id.toString()) &&
+                !personalizedIds.has(item.video._id.toString())
+        )
+
+        .filter((item) => item.score < 25)
+
+        .map((item) => {
+            let explorationScore = 0;
+
+            //=============================================================================================================//
+
+            // Reward Unkown Category
+
+            const categoryScore =
+                userProfile.categoryScores[
+                    item.video.category?.toLowerCase()
+                ] || 0;
+
+            if (categoryScore < 20) {
+                explorationScore += 40;
+            }
+
+            //=============================================================================================================//
+
+            // Reward Unkown Tags
+
+            let unfamiliarTags = 0;
+
+            item.video.tags.forEach((tag) => {
+                const tagScore = userProfile.tagScores[tag.toLowerCase()] || 0;
+
+                if (tagScore < 20) {
+                    unfamiliarTags++;
+                }
+            });
+
+            explorationScore += unfamiliarTags * 10;
+
+            //=============================================================================================================//
+
+            // Reward Unkown Creator
+
+            const creatorId = item.video.owner._id.toString();
+
+            const creatorScore = creatorAffinity[creatorId] || 0;
+
+            if (creatorScore === 0) {
+                explorationScore += 20;
+            }
+
+            //=============================================================================================================//
+
+            // Small Trending Boost (To Avoid dead videos)
+
+            explorationScore += Math.min(item.video.views / 10, 20);
+
+            //=============================================================================================================//
+
+            return {
+                ...item,
+
+                explorationScore,
+            };
+        })
+
+        .sort((a, b) => b.explorationScore - a.explorationScore)
+
+        .slice(0, explorationCount);
+
+    //=============================================================================================================//
+
+    const assignedVideoIds = new Set([
+        ...personalizedVideos.map((item) => item.video._id.toString()),
+        ...relatedVideos.map((item) => item.video._id.toString()),
+        ...explorationVideos.map((item) => item.video._id.toString()),
+    ]);
+
+    const leftoverVideos = diversifiedFeed.filter(
+        (item) => !assignedVideoIds.has(item.video._id.toString())
+    );
+
+    relatedVideos.push(...leftoverVideos);
+
+    //=============================================================================================================//
+
+    // 15. Assemble Final Feed
+
+    const TARGET_FEED_SIZE = 100;
+
+    let finalFeed = assembleFeed({
+        personalizedVideos,
+        relatedVideos,
+        explorationVideos,
+    });
+
+    //=============================================================================================================//
+
+    // Fill remaining feed with trending videos
+
+    if (finalFeed.length < TARGET_FEED_SIZE) {
+        const trendingVideos = await getTrendingVideos(TARGET_FEED_SIZE);
+
+        //=============================================================================================================//
+
+        // Get existing recommendation ids
+
+        const existingVideoIds = new Set(
+            finalFeed.map((item) => item.video._id.toString())
+        );
+
+        //=============================================================================================================//
+
+        // Remove duplicate trending videos
+
+        const uniqueTrendingVideos = trendingVideos.filter(
+            (item) => !existingVideoIds.has(item.video._id.toString())
+        );
+
+        //=============================================================================================================//
+
+        // Calculate remaining slots
+
+        const remainingSlots = TARGET_FEED_SIZE - finalFeed.length;
+
+        //=============================================================================================================//
+
+        // Fill feed with trending videos
+
+        finalFeed.push(...uniqueTrendingVideos.slice(0, remainingSlots));
+    }
+
+    //=============================================================================================================//
+
+    // 17. Return Response
 
     return res.status(200).json(
-
         new ApiResponse(
-
             200,
-            "Recommended videos fetched successfully",
-            scoredVideos,
-            topVideos
+
+            // "Recommended videos fetched successfully",
+            "Feed Assembly Tested Successfully",
+
+            finalFeed
         )
     );
 });
-
 
 export {
   uploadVideo,
@@ -907,5 +1200,12 @@ export {
   updateThumbnail,
   getWatchHistory,
   updateWatchProgress,
-  getRecommendedVideos
+  recommended_Videos,
+
 };
+
+
+
+// TODO:
+
+//COLD_START_RANKING_CONFIG

@@ -1,5 +1,7 @@
 import express from "express";
 
+console.log("VIDEO ROUTES LOADED");
+
 import {
   uploadVideo,
   getAllVideos,
@@ -12,6 +14,7 @@ import {
   updateThumbnail,
   getWatchHistory,
   updateWatchProgress,
+  recommended_Videos
 } from "../controllers/video.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { videoUpload } from "../middlewares/videoUpload.middleware.js";
@@ -104,4 +107,15 @@ router.route("/watch_history").get(verifyJWT, getWatchHistory);
 // 11. Update Watch Progress
 
 router.route("/video/:videoId/update_watch_progress").post(verifyJWT, updateWatchProgress);
+
+
+//=============================================================================================================//
+
+// 12. Get Recommended Videos
+
+router.route("/recommended_Videos").get(verifyJWT, recommended_Videos);
+
+
+
+
 export default router;

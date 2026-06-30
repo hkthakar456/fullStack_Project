@@ -1,6 +1,6 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponce.js";
+import { asyncHandler } from "../utils/helpers/asyncHandler.js";
+import { ApiError } from "../utils/helpers/ApiError.js";
+import { ApiResponse } from "../utils/helpers/ApiResponce.js";
 
 import { Follow } from "../models/follow.model.js";
 import { User } from "../models/user.model.js";
@@ -27,8 +27,7 @@ const toggleFollow = asyncHandler(async (req, res) => {
 
 // 2. Validate creator
 
-    const creator =
-        await User.findById(creatorId);
+    const creator = await User.findById(creatorId);
 
     if (!creator) {
 
@@ -42,11 +41,8 @@ const toggleFollow = asyncHandler(async (req, res) => {
 
 // 3. Prevent self follow
 
-    if (
-        creatorId ===
-        req.user._id.toString()
-    ) {
-
+    if (creatorId === req.user._id.toString()) 
+    {
         throw new ApiError(
             400,
             "You cannot follow yourself"

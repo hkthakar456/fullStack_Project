@@ -1,9 +1,14 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponce.js";
+import { asyncHandler } from "../utils/helpers/asyncHandler.js";
+import { ApiError } from "../utils/helpers/ApiError.js";
+import { ApiResponse } from "../utils/helpers/ApiResponce.js";
+
 
 import { Like } from "../models/likes.model.js";
 import { Video } from "../models/video.model.js";
+
+
+import { buildLikePreferenceProfile }
+from "../utils/recommendation/profiles/buildLikePreferenceProfile.js";
 
 const toggleLike = asyncHandler(async (req, res) => {
 
@@ -27,11 +32,9 @@ const toggleLike = asyncHandler(async (req, res) => {
 
 // 2. Check if video exists
 
-    const video =
-        await Video.findById(videoId);
+    const video = await Video.findById(videoId);
 
     if (!video) {
-
         throw new ApiError(
             404,
             "Video not found"
@@ -42,8 +45,7 @@ const toggleLike = asyncHandler(async (req, res) => {
 
 // 3. Check if user already liked
 
-    const existingLike =
-        await Like.findOne({likedBy: req.user._id, video: videoId});
+    const existingLike = await Like.findOne({likedBy: req.user._id, video: videoId});
 
 //=============================================================================================================//
 
@@ -91,9 +93,7 @@ const toggleLike = asyncHandler(async (req, res) => {
             videoId,
             {
                 $inc: {
-
                     likesCount: 1
-
                 }
             }
         );
@@ -189,8 +189,55 @@ const getUserLikeStatus = asyncHandler(async (req, res) => {
     );
 });
 
+
+
+
+//=============================================================================================================//
+
+const testLikeProfile = asyncHandler(async (req, res) => {
+
+//=============================================================================================================//
+
+    // 1. Get User Id
+
+    const userId = req.user._id;
+
+//=============================================================================================================//
+
+    // 2. Build Like Profile
+
+    const likeProfile =
+
+        await buildLikePreferenceProfile(
+            userId
+        );
+
+//=============================================================================================================//
+
+    // 3. Return Response
+
+    return res.status(200).json(
+
+        new ApiResponse(
+
+            200,
+
+            "Like profile generated successfully",
+
+            likeProfile
+        )
+    );
+
+//=============================================================================================================//
+
+});
+
+
+
 export {
     toggleLike,
     getVideoLikes,
-    getUserLikeStatus
+    getUserLikeStatus,
+        testLikeProfile
+
 };

@@ -1,6 +1,6 @@
 import express from "express";
 
-import {toggleLike, getVideoLikes, getUserLikeStatus} from "../controllers/like.controller.js";
+import {toggleLike, getVideoLikes, getUserLikeStatus, testLikeProfile} from "../controllers/like.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
@@ -9,7 +9,7 @@ const router = express.Router();
 
 // Toggle Like
 
-router.route("/video/:videoId/like").post(verifyJWT, toggleLike);
+router.route("/video/:videoId/toggle_like").post(verifyJWT, toggleLike);
 
 //=============================================================================================================//
 
@@ -24,5 +24,12 @@ router.route("/video/:videoId/likes").get(getVideoLikes);
 router.route("/video/:videoId/like-status").get(verifyJWT, getUserLikeStatus);
 
 //=============================================================================================================//
+
+
+router.get(
+    "/test-like-profile",
+    verifyJWT,
+    testLikeProfile
+);
 
 export default router;
