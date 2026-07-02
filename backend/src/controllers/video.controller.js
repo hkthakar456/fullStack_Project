@@ -798,6 +798,17 @@ const recommended_Videos = asyncHandler(async (req, res) => {
     // 2. Build Recommendation Feed
     // 3. Return Response
 
+    const recommendations = await buildRecommendationFeed({
+        user: req.user,
+    });
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            recommendations,
+            "Recommended videos fetched successfully"
+        )
+    );
 });
 
 export {

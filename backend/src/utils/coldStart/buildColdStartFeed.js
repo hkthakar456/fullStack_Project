@@ -40,9 +40,7 @@ import { assembleColdStartFeed } from "./Assembly Layer/assembleColdStartFeed.js
 
 import { applyFeedDiversification } from "./Diversification Layer/applyFeedDiversification.js";
 
-import {
-    DEFAULT_RECOMMENDATION_BATCH_SIZE,
-} from "../../constants/recommendation.constants.js";
+import { DEFAULT_RECOMMENDATION_BATCH_SIZE } from "../../constants/recommendation.constants.js";
 
 const buildColdStartFeed = ({videos, feedSize = DEFAULT_RECOMMENDATION_BATCH_SIZE}) => {
 
