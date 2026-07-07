@@ -73,6 +73,9 @@ export const buildPersonalizedFeed = async ({ userId, feedSize = 100 }) => {
 
     const likeProfile = await buildLikePreferenceProfile(userId);
 
+    console.log("LIKE PROFILE:");
+console.log(JSON.stringify(likeProfile, null, 2));
+
     //=========================================================================================================//
     
     // Step 5: Build Search Click Profile
@@ -86,6 +89,9 @@ export const buildPersonalizedFeed = async ({ userId, feedSize = 100 }) => {
     
 
     const followedCreatorsList = await getFollowedCreators(userId);
+
+    console.log("FOLLOWED CREATORS:");
+console.log([...followedCreatorsList]);
 
     //=========================================================================================================//
     

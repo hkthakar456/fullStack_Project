@@ -53,23 +53,21 @@ const calculateRecommendationScore = (
 
     let creatorScore = originalCreatorScore;
 
-    if (video.owner?._id) {
-        const creatorId = video.owner._id.toString();
-
-        creatorScore = creatorAffinity[creatorId] || 0;
-    }
+    totalScore += creatorScore * 0.15;
 
     //=============================================================================================================//
-
+    
     // FOLLOW BOOST
+
+    // Increase creator affinity contribution when the user follows the creator.
+    
+    //=============================================================================================================//
 
     const isFollowed = followedCreatorsList.has(creatorId);
 
-    if (isFollowed) {
-        totalScore += creatorScore * 0.05;
-    }
+    const followBonus = isFollowed ? creatorScore * 0.08 : 0;
 
-    totalScore += creatorScore * 0.15;
+    totalScore += followBonus;
 
     //=============================================================================================================//
 
@@ -201,7 +199,7 @@ const calculateRecommendationScore = (
 
             creatorScore: Number(originalCreatorScore.toFixed(2)),
 
-            followBonus: isFollowed ? 15 : 0,
+            followBonus: Number(followBonus.toFixed(2)),
 
             likeTagScore: Number(likeTagScore.toFixed(2)),
 

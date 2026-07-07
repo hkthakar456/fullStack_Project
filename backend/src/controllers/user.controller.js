@@ -259,8 +259,9 @@ const loginUser = asyncHandler(async (req, res) => {
             new ApiResponse(
                 200, 
                 "User logged in successfully", 
-                {   user: loggedInUser,
-                    accessToken
+                {   accessToken,
+                    refreshToken,
+                    user: loggedInUser
                 }
             )
         ); // Return a JSON response with the logged-in user details, access token, and refresh token in the response body for client-side use so that the client can store the tokens in local storage or use them for subsequent API requests as needed.

@@ -21,6 +21,9 @@ const addComment = asyncHandler(async (req, res) => {
     // 6. Increment comment count
     // 7. Return response
 
+    console.log("BODY:", req.body);
+    console.log("HEADERS:", req.headers["content-type"]);
+
 //=============================================================================================================//
 
 // 1. Get video id and comment content

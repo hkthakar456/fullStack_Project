@@ -1,23 +1,23 @@
 $kind: http-request
 name: Register
-url: http://localhost:5000/api/v1/users/register
+url: http://localhost:3000/api/v1/users/register
 method: POST
 body:
   type: formdata
   content:
     - type: text
       key: fullName
-      value: User-5
+      value: User-6
       description: ""
       disabled: false
     - type: text
       key: userName
-      value: User-5
+      value: User-6
       description: ""
       disabled: false
     - type: text
       key: email
-      value: User-5@gmail.com
+      value: User-6@gmail.com
       description: ""
       disabled: false
     - type: text

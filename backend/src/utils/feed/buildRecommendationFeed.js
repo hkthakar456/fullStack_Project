@@ -2,11 +2,11 @@ import { Video } from "../../models/video.model.js";
 
 import { isColdStartUser } from "../coldStart/Metrics Layer/isColdStartUser.js";
 import { buildColdStartFeed } from "../coldStart/buildColdStartFeed.js";
-import { buildPersonalizedFeed } from "./buildPersonalizedFeed.js";
+import { buildPersonalizedFeed } from "../recommendation/buildPersonalizedFeed.js"
 
 import { DEFAULT_RECOMMENDATION_BATCH_SIZE } from "../../constants/recommendation.constants.js";
 
-const buildRecommendationFeed = async ({user, feedSize = DEFAULT_RECOMMENDATION_BATCH_SIZE}) => {
+const buildRecommendationFeed = async ({user, feedSize = 100}) => {
 
     // Responsibility:
 
@@ -52,8 +52,9 @@ const buildRecommendationFeed = async ({user, feedSize = DEFAULT_RECOMMENDATION_
     
     // Step 3: Build Personalized Feed
     
+    const userId = user._id.toString();
 
-    const personalizedFeed = await buildPersonalizedFeed({user, feedSize});
+    const personalizedFeed = await buildPersonalizedFeed({userId, feedSize});
 
     //=========================================================================================================//
     

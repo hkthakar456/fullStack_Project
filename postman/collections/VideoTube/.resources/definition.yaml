@@ -1,2 +1,7 @@
 $kind: collection
 name: VideoTube
+variables:
+  - key: json_web_token_0u79
+    secret: true
+  - key: json_web_token_01hm
+    secret: true

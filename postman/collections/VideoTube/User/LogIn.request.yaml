@@ -1,6 +1,6 @@
 $kind: http-request
 name: LogIn
-url: http://localhost:8000/api/v1/users/login
+url: http://localhost:3000/api/v1/users/login
 method: POST
 body:
   type: json
@@ -16,7 +16,7 @@ body:
 
     // {\r
 
-    //     \"email\": \"User-2@gmail.com\",\r
+    //     \"email\": \"User-6@gmail.com\",\r
 
     //     \"password\": \"12345678\"\r
 

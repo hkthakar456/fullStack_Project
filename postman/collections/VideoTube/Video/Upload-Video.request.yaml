@@ -1,6 +1,6 @@
 $kind: http-request
 name: Upload-Video
-url: http://localhost:5000/api/v1/videos/upload-video
+url: http://localhost:3000/api/v1/videos/upload-video
 method: POST
 body:
   type: formdata
@@ -12,7 +12,7 @@ body:
       disabled: false
     - type: text
       key: description
-      value: " podcast-part-5"
+      value: " podcast-part-6"
       description: ""
       disabled: false
     - type: text
@@ -40,5 +40,5 @@ body:
 auth:
   type: bearer
   credentials:
-    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVzZXItM0BnbWFpbC5jb20iLCJ1c2VySWQiOiI2YTM2N2IxOGUwY2IyODk0MzdhMjExNmEiLCJ1c2VyTmFtZSI6InVzZXItMyIsImZ1bGxOYW1lIjoiVXNlci0zIiwiaWF0IjoxNzgxOTc5MDY2LCJleHAiOjE3ODIwNjU0NjZ9.Zgs0m_86-KSjqvTPg_2tkr-HENZ_9XHoamdNLAakRuo
+    token: "{{json_web_token_0u79}}"
 order: 1781350745129

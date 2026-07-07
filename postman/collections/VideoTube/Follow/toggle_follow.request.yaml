@@ -1,4 +1,9 @@
 $kind: http-request
-url: ""
-method: GET
+name: toggle_follow
+url: http://localhost:8000/api/v1/follows/creator/a52d2a1c5805da6c08988b24/follow
+method: POST
+auth:
+  type: bearer
+  credentials:
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhrdGhha2FyNDU2QGdtYWlsLmNvbSIsInVzZXJJZCI6IjZhMmQwNGM2NTAzZjk3NTNhOTM5OWM0OSIsInVzZXJOYW1lIjoiaGt0MDQ1NiIsImZ1bGxOYW1lIjoiSGFyc2giLCJpYXQiOjE3ODM0MjM2MzQsImV4cCI6MTc4MzUxMDAzNH0.Sy_3l0QnScZrAlptEqUwQjRIiHtW8SAGdzqEB8RW5j0
 order: 1781864302494

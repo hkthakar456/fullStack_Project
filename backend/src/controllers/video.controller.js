@@ -9,28 +9,30 @@ import { uploadToCloudinary } from "../utils/helpers/cloudinary.js";
 import { applyDiversityLayer } from "../utils/feed/applyDiversityLayer.js";
 import { assembleFeed } from "../utils/feed/assembleFeed.js";
 
-import { buildUserInterestProfile } from "../utils/recommendation/profiles/buildUserInterestProfile.js";
-import { buildCreatorAffinityProfile } from "../utils/recommendation/profiles/buildCreatorAffinityProfile.js";
-import { buildSearchClickProfile } from "../utils/recommendation/profiles/buildSearchClickProfile.js";
-import { buildLikePreferenceProfile } from "../utils/recommendation/profiles/buildLikePreferenceProfile.js";
+// import { buildUserInterestProfile } from "../utils/recommendation/profiles/buildUserInterestProfile.js";
+// import { buildCreatorAffinityProfile } from "../utils/recommendation/profiles/buildCreatorAffinityProfile.js";
+// import { buildSearchClickProfile } from "../utils/recommendation/profiles/buildSearchClickProfile.js";
+// import { buildLikePreferenceProfile } from "../utils/recommendation/profiles/buildLikePreferenceProfile.js";
 
-import { calculateRecommendationScore } from "../utils/recommendation/scores/calculateRecommendationScore.js";
-import { getFollowedCreators } from "../utils/recommendation/signals/getFollowedCreators.js";
+// import { calculateRecommendationScore } from "../utils/recommendation/scores/calculateRecommendationScore.js";
+// import { getFollowedCreators } from "../utils/recommendation/signals/getFollowedCreators.js";
 
 // import { applyRandomizationLayer } from "../utils/applyRandomizationLayer.js";
-import { isColdStartUser } from "../utils/coldStart/Metrics Layer/isColdStartUser.js";
-import { assembleColdStartFeed } from "../utils/coldStart/Assembly Layer/assembleColdStartFeed.js";
-import { buildVideoMetrics } from "../utils/coldStart/Metrics Layer/buildVideoMetrics.js";
-import { buildCandidatePool } from "../utils/coldStart/Candidate Layer/buildCandidatePool.js";
-import { buildTrendingCandidatePool } from "../utils/coldStart/Candidate Layer/buildTrendingCandidatePool.js";
-import { buildRecentCandidatePool } from "../utils/coldStart/Candidate Layer/buildRecentCandidatePool.js";
-import { buildEngagementCandidatePool } from "../utils/coldStart/Candidate Layer/buildEngagementCandidatePool.js";
-import { groupVideosByCategory } from "../utils/coldStart/Candidate Layer/groupVideosByCategory.js";
-import { buildCategoryCandidates } from "../utils/coldStart/Candidate Layer/buildCategoryCandidates.js";
-import { assembleCategoryPool } from "../utils/coldStart/Candidate Layer/assembleCategoryPool.js";
-import { buildDiscoveryCandidatePool } from "../utils/coldStart/Candidate Layer/buildDiscoveryCandidatePool.js";
-import { calculateFeedSlots } from "../utils/coldStart/Assembly Layer/calculateFeedSlots.js";
-import { applyFeedDiversification } from "../utils/coldStart/Diversification Layer/applyFeedDiversification.js";
+// import { isColdStartUser } from "../utils/coldStart/Metrics Layer/isColdStartUser.js";
+// import { assembleColdStartFeed } from "../utils/coldStart/Assembly Layer/assembleColdStartFeed.js";
+// import { buildVideoMetrics } from "../utils/coldStart/Metrics Layer/buildVideoMetrics.js";
+// import { buildCandidatePool } from "../utils/coldStart/Candidate Layer/buildCandidatePool.js";
+// import { buildTrendingCandidatePool } from "../utils/coldStart/Candidate Layer/buildTrendingCandidatePool.js";
+// import { buildRecentCandidatePool } from "../utils/coldStart/Candidate Layer/buildRecentCandidatePool.js";
+// import { buildEngagementCandidatePool } from "../utils/coldStart/Candidate Layer/buildEngagementCandidatePool.js";
+// import { groupVideosByCategory } from "../utils/coldStart/Candidate Layer/groupVideosByCategory.js";
+// import { buildCategoryCandidates } from "../utils/coldStart/Candidate Layer/buildCategoryCandidates.js";
+// import { assembleCategoryPool } from "../utils/coldStart/Candidate Layer/assembleCategoryPool.js";
+// import { buildDiscoveryCandidatePool } from "../utils/coldStart/Candidate Layer/buildDiscoveryCandidatePool.js";
+// import { calculateFeedSlots } from "../utils/coldStart/Assembly Layer/calculateFeedSlots.js";
+// import { applyFeedDiversification } from "../utils/coldStart/Diversification Layer/applyFeedDiversification.js";
+
+import { buildRecommendationFeed } from "../utils/feed/buildRecommendationFeed.js";
 
 console.log("VIDEO CONTROLLER FILE LOADED");
 
@@ -172,20 +174,35 @@ const getAllVideos = asyncHandler(async (req, res) => {
 const getVideoById = asyncHandler(async (req, res) => {
   // Steps
 
-  // 1. Get video id
-  // 2. Validate video
-  // 3. Increase views
-  // 4. Return video details
+  // 1. Find user
+  // 2. Get video id
+  // 3. Validate video
+  // 4. Increase views
+  // 5. Update watch history
+  // 6. Return video details
 
   //=============================================================================================================//
 
-  // 1. Get video id
+  // 1. Find user
 
+    const user = await User.findById(req.user._id);
+    if (!user) {
+        throw new ApiError(
+            404,
+            "User not found"
+        );
+    }
+
+  //=============================================================================================================//
+
+  // 2. Get video id
   const { videoId } = req.params;
 
+
+
   //=============================================================================================================//
 
-  // 2. Validate video
+  // 3. Validate video
 
   const video = await Video.findById(videoId).populate(
     "owner",
@@ -198,7 +215,7 @@ const getVideoById = asyncHandler(async (req, res) => {
 
   //=============================================================================================================//
 
-  // 3. If user was logged in then views are increased
+  // 4. If user was logged in then views are increased
 
   video.views += 1;
 
@@ -208,7 +225,22 @@ const getVideoById = asyncHandler(async (req, res) => {
 
   //=============================================================================================================//
 
-  // 4. Return video details
+  // 5. Update watch history
+
+  user.watchHistory.push({
+
+            video: videoId,
+
+            watchedAt: new Date(),
+
+            watchDuration: 0,
+
+            watchPercentage: 0
+        });
+
+  //=============================================================================================================//
+
+  // 6. Return video details
 
   return res
     .status(200)
@@ -720,10 +752,7 @@ const updateWatchProgress = asyncHandler(async (req, res) => {
 
 // 7. Update existing history entry
 
-    const existingHistory =
-
-        user.watchHistory.find(item =>
-                item.video.toString() === videoId);
+    const existingHistory = user.watchHistory.find(item => item.video.toString() === videoId);
 
 //=============================================================================================================//
 
