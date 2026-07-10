@@ -1,0 +1,17 @@
+.watch-layout {
+  min-height: 100vh;
+  background-color: #0a0a0a;
+  color: white;
+}
+
+.watch-navbar {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  border-bottom: 1px solid #262626;
+}
+
+.watch-content {
+  width: 100%;
+}

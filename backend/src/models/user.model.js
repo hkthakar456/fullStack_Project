@@ -174,7 +174,7 @@ userSchema.methods.generateRefreshToken = function () {
         process.env.REFRESH_TOKEN_SECRET,
 
         {
-            expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || "10d",
+            expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || "15d",
         }
     );
 }; // Method to generate a JWT refresh token for the user.

@@ -455,10 +455,21 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     } // If any error occurs during the token verification or user lookup process, we catch the error and throw a new ApiError with a 401 status code indicating that the refresh token is invalid, which could be due to an invalid token, an expired token, or a token that does not correspond to any existing user in the database.
 });
 
+const getCurrentUser = asyncHandler(async (req, res) => {
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            "Current user fetched successfully",
+            req.user
+        )
+    );
+});
+
 
 export {
     registerUser,
     loginUser,
     logoutUser,
-    refreshAccessToken
+    refreshAccessToken,
+    getCurrentUser
 };
