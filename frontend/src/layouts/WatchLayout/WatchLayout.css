@@ -1,17 +1,30 @@
-.watch-layout {
-  min-height: 100vh;
-  background-color: #0a0a0a;
-  color: white;
+.watch-layout{
+    display: flex;
+
+    gap: 24px;
+
+    padding: 24px;
+
+    background: #0f0f0f;
+    min-height: calc(100vh - 64px);
+
+    box-sizing: border-box;
 }
 
-.watch-navbar {
-  height: 64px;
-  display: flex;
-  align-items: center;
-  padding: 0 24px;
-  border-bottom: 1px solid #262626;
+.watch-main{
+    flex: 3;
+    min-width: 0;
 }
 
-.watch-content {
-  width: 100%;
+.watch-sidebar{
+
+    flex:1;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:16px;
+
+    color:#ffffff;
 }

@@ -1,17 +1,17 @@
 import { Outlet } from "react-router";
+
+import Navbar from "../../components/layout/Navbar/Navbar";
+import Sidebar from "../../components/layout/Sidebar/Sidebar";
+
 import "./AppLayout.css";
 
 function AppLayout() {
   return (
     <div className="app-layout">
-      <header className="app-navbar">
-        Navbar
-      </header>
+      <Navbar />
 
       <div className="app-layout-body">
-        <aside className="app-sidebar">
-          Sidebar
-        </aside>
+        <Sidebar />
 
         <main className="app-content">
           <Outlet />

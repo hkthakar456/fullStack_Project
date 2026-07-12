@@ -1,0 +1,18 @@
+.video-player{
+
+    width:100%;
+
+    aspect-ratio:16/9;
+
+    background:#181818;
+
+    border-radius:12px;
+
+    border:1px solid #303030;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    color:#ffffff;
+}

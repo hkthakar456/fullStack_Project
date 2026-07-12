@@ -9,6 +9,8 @@ import { uploadToCloudinary } from "../utils/helpers/cloudinary.js";
 import { applyDiversityLayer } from "../utils/feed/applyDiversityLayer.js";
 import { assembleFeed } from "../utils/feed/assembleFeed.js";
 
+import mongoose from "mongoose";
+
 // import { buildUserInterestProfile } from "../utils/recommendation/profiles/buildUserInterestProfile.js";
 // import { buildCreatorAffinityProfile } from "../utils/recommendation/profiles/buildCreatorAffinityProfile.js";
 // import { buildSearchClickProfile } from "../utils/recommendation/profiles/buildSearchClickProfile.js";
@@ -177,28 +179,20 @@ const getVideoById = asyncHandler(async (req, res) => {
   // 1. Find user
   // 2. Get video id
   // 3. Validate video
-  // 4. Increase views
-  // 5. Update watch history
-  // 6. Return video details
+  // 4. Return video details
 
   //=============================================================================================================//
 
   // 1. Find user
 
-    const user = await User.findById(req.user._id);
-    if (!user) {
-        throw new ApiError(
-            404,
-            "User not found"
-        );
-    }
+    // const user = await User.findById(req.user._id);
+
+    // const user = req.user;
 
   //=============================================================================================================//
 
   // 2. Get video id
   const { videoId } = req.params;
-
-
 
   //=============================================================================================================//
 
@@ -215,36 +209,84 @@ const getVideoById = asyncHandler(async (req, res) => {
 
   //=============================================================================================================//
 
-  // 4. If user was logged in then views are increased
-
-  video.views += 1;
-
-  await video.save({
-    validateBeforeSave: false,
-  });
-
-  //=============================================================================================================//
-
-  // 5. Update watch history
-
-  user.watchHistory.push({
-
-            video: videoId,
-
-            watchedAt: new Date(),
-
-            watchDuration: 0,
-
-            watchPercentage: 0
-        });
-
-  //=============================================================================================================//
-
-  // 6. Return video details
+  // 4. Return video details
 
   return res
     .status(200)
     .json(new ApiResponse(200, "Video fetched successfully", video));
+});
+
+const addVideoView = asyncHandler(async (req, res) => {
+
+  // Steps (Algorithm)
+
+  // 1. Get video id
+  // 2. Validate video id
+  // 3. Find video
+  // 4. Increment view count
+  // 5. Save video
+  // 6. Return response
+
+  //=============================================================================================================//
+
+  // 1. Get video id
+
+    const { videoId } = req.params;
+
+  //=============================================================================================================//
+
+  // 2. Validate video id
+
+    if (!mongoose.Types.ObjectId.isValid(videoId)) {
+        throw new ApiError(
+            400,
+            "Invalid video id"
+        );
+    }
+
+    //=============================================================================================================//
+
+    // 3. Find video
+
+    const video = await Video.findById(videoId);
+
+    if (!video) {
+        throw new ApiError(
+            404,
+            "Video not found"
+        );
+    }
+
+    //=============================================================================================================//
+
+    // 4. Increment view count
+
+    video.views += 1;
+
+    //=============================================================================================================//
+
+    // 5. Save video
+    await Video.findByIdAndUpdate(
+        videoId,
+        {
+            $inc: { views: 1 },
+        },
+        {
+            new: true,
+        }
+    );
+
+    //=============================================================================================================//
+
+    // 6. Return response
+    
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            "View added successfully"
+        )
+    );
+
 });
 
 const deleteVideo = asyncHandler(async (req, res) => {
@@ -828,14 +870,14 @@ const recommended_Videos = asyncHandler(async (req, res) => {
     // 3. Return Response
 
     const recommendations = await buildRecommendationFeed({
-        user: req.user,
+        user: req.user ?? null,
     });
 
     return res.status(200).json(
         new ApiResponse(
-            200,
+            200,            
+            "Recommended videos fetched successfully",
             recommendations,
-            "Recommended videos fetched successfully"
         )
     );
 });
@@ -844,6 +886,7 @@ export {
   uploadVideo,
   getAllVideos,
   getVideoById,
+  addVideoView,
   deleteVideo,
   updateVideoDetails,
   togglePublishStatus,
@@ -853,7 +896,6 @@ export {
   getWatchHistory,
   updateWatchProgress,
   recommended_Videos,
-
 };
 
 

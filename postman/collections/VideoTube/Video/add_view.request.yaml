@@ -1,0 +1,5 @@
+$kind: http-request
+name: add_view
+url: http://localhost:8000/api/v1/videos/video/22998d472241a33200c830fe/add_view
+method: POST
+order: 4503586248786446

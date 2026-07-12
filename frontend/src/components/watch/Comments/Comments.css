@@ -1,0 +1,15 @@
+.video-info,
+.channel-card,
+.description,
+.comments{
+
+    padding:20px;
+
+    background:#181818;
+
+    border:1px solid #303030;
+
+    border-radius:12px;
+
+    color:#ffffff;
+}

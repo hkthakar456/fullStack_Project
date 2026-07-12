@@ -14,9 +14,11 @@ import {
   updateThumbnail,
   getWatchHistory,
   updateWatchProgress,
-  recommended_Videos
+  recommended_Videos,
+  addVideoView
 } from "../controllers/video.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { optionalAuth } from "../middlewares/optionalAuth.middleware.js";
 import { videoUpload } from "../middlewares/videoUpload.middleware.js";
 
 const router = express.Router();
@@ -50,7 +52,7 @@ router.route("/all-videos").get(getAllVideos);
 
 // 3. Get Single Video By ID
 
-router.route("/video/:videoId").get(verifyJWT, getVideoById);
+router.route("/video/:videoId").get(optionalAuth, getVideoById);
 
 //=============================================================================================================//
 
@@ -113,9 +115,13 @@ router.route("/video/:videoId/update_watch_progress").post(verifyJWT, updateWatc
 
 // 12. Get Recommended Videos
 
-router.route("/recommended_Videos").get(verifyJWT, recommended_Videos);
+router.route("/recommended_Videos").get(optionalAuth, recommended_Videos);
 
+//=============================================================================================================//
 
+// 14. Add Video View
+
+router.route("/video/:videoId/add_view").post(optionalAuth, addVideoView);
 
 
 export default router;

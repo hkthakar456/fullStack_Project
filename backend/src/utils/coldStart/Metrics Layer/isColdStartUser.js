@@ -43,6 +43,13 @@ export const isColdStartUser = (user) => {
 
     const confidenceScore = watchCount * 6 + likeCount * 2 + searchClickCount * 2;
 
+    console.log({
+        watchCount,
+        likeCount,
+        searchClickCount,
+        confidenceScore,
+    });
+
     //=========================================================================================================//
 
     // 5. Check thresholds

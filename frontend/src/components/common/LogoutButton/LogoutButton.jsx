@@ -10,9 +10,7 @@ function LogoutButton() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const setUnauthenticated = useAuthStore(
-    (state) => state.setUnauthenticated
-  );
+  const setUnauthenticated = useAuthStore((state) => state.setUnauthenticated);
 
   const logoutMutation = useMutation({
     mutationFn: logoutUser,
@@ -32,24 +30,18 @@ function LogoutButton() {
     onError: (error) => {
       console.error(
         "Logout failed:",
-        error.response?.data?.message || error.message
+        error.response?.data?.message || error.message,
       );
     },
   });
 
-  const handleLogout = () => {
-    logoutMutation.mutate();
-  };
-
   return (
     <button
-      className="logout-button"
-      onClick={handleLogout}
+      className="logout-menu-button"
+      onClick={() => logoutMutation.mutate()}
       disabled={logoutMutation.isPending}
     >
-      {logoutMutation.isPending
-        ? "Logging out..."
-        : "Logout"}
+      {logoutMutation.isPending ? "Logging out..." : "Logout"}
     </button>
   );
 }
