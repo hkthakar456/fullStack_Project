@@ -1,0 +1,51 @@
+.comment-card {
+  display: flex;
+
+  gap: 16px;
+}
+
+.comment-content {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.comment-header {
+  display: flex;
+
+  gap: 10px;
+
+  align-items: center;
+}
+
+.comment-author {
+  font-weight: 600;
+}
+
+.comment-date {
+  color: var(--text-secondary);
+
+  font-size: 13px;
+}
+
+.comment-footer {
+  display: flex;
+
+  gap: 16px;
+
+  align-items: center;
+
+  color: var(--text-secondary);
+}
+
+.comment-footer button {
+  background: none;
+
+  border: none;
+
+  color: inherit;
+
+  cursor: pointer;
+}

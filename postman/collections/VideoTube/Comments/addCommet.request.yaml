@@ -1,4 +1,16 @@
 $kind: http-request
-url: ""
-method: GET
+name: addCommet
+url: http://localhost:8000/api/v1/comments/video/2996d58ed3b5038ef6346920/comment
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"content\" : \"Very Good Video\"\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: ""
 order: 1783062771248

@@ -43,11 +43,13 @@ function Home() {
     );
   }
 
+
   return (
     <section className="home-page">
       <div className="home-header">
         <h1>Recommended</h1>
       </div>
+
 
       <div className="video-grid">
         {feedItems.map((item) => (

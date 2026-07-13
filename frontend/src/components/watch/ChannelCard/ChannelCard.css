@@ -1,15 +1,59 @@
-.video-info,
-.channel-card,
-.description,
-.comments{
+.channel-card{
 
-    padding:20px;
+    display:flex;
 
-    background:#181818;
+    justify-content:space-between;
 
-    border:1px solid #303030;
+    align-items:center;
 
-    border-radius:12px;
+    gap:24px;
 
-    color:#ffffff;
+}
+
+.channel-left{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:16px;
+
+}
+
+.channel-avatar{
+
+    width:48px;
+
+    height:48px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+}
+
+.channel-details{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:4px;
+
+}
+
+.channel-name{
+
+    font-size:16px;
+
+    font-weight:600;
+
+}
+
+.channel-subscribers{
+
+    color:var(--text-secondary);
+
+    font-size:14px;
+
 }

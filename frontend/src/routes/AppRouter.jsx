@@ -15,6 +15,7 @@ import History from "../pages/History/History";
 import Channel from "../pages/Channel/Channel";
 import Studio from "../pages/Studio/Studio";
 import Account from "../pages/Account/Account";
+import Playground from "../pages/Playground/Playground";
 
 function AppRouter() {
   return (
@@ -47,8 +48,10 @@ function AppRouter() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Route>
-      </Routes>
 
+        <Route path="/playground" element={<Playground />} />
+
+      </Routes>
     </BrowserRouter>
   );
 }

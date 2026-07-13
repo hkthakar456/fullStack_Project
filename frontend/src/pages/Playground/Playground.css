@@ -1,0 +1,33 @@
+.playground{
+
+    min-height:100vh;
+
+    padding:40px;
+
+    background:var(--bg-primary);
+
+    color:var(--text-primary);
+
+}
+
+.playground h1{
+
+    margin-bottom:40px;
+
+}
+
+.playground-section{
+
+    margin-bottom:40px;
+
+}
+
+.button-group{
+
+    display:flex;
+
+    gap:16px;
+
+    flex-wrap:wrap;
+
+}

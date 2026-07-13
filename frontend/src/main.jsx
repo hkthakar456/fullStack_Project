@@ -9,6 +9,8 @@ import { queryClient } from "./api/queryClient.js";
 import AuthInitializer from "./features/auth/AuthInitializer.jsx";
 import { setupInterceptors } from "./api/setupInterceptors.js";
 
+import "./styles/global.css";
+
 setupInterceptors();
 
 createRoot(document.getElementById("root")).render(

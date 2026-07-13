@@ -1,8 +1,53 @@
 :root{
-    --bg: #0f0f0f;
-    --surface: #181818;
-    --surface-hover: #212121;
-    --border: #303030;
-    --text-primary: #ffffff;
-    --text-secondary: #aaaaaa;
+
+    /* ===============================
+       COLORS
+    =============================== */
+
+    --bg-primary:#0f0f0f;
+    --bg-secondary:#181818;
+    --bg-tertiary:#272727;
+    --bg-hover:#3a3a3a;
+
+    --text-primary:#ffffff;
+    --text-secondary:#aaaaaa;
+
+    --border-color:#303030;
+
+    --primary:#ffffff;
+    --danger:#ff4d4f;
+    --success:#22c55e;
+
+    /* ===============================
+       BORDER RADIUS
+    =============================== */
+
+    --radius-sm:8px;
+    --radius-md:12px;
+    --radius-lg:18px;
+    --radius-xl:24px;
+    --radius-full:999px;
+
+    /* ===============================
+       SPACING
+    =============================== */
+
+    --space-xs:4px;
+    --space-sm:8px;
+    --space-md:16px;
+    --space-lg:24px;
+    --space-xl:32px;
+
+    /* ===============================
+       TRANSITIONS
+    =============================== */
+
+    --transition:0.2s ease;
+
+    /* ===============================
+       SHADOW
+    =============================== */
+
+    --shadow-sm:0 2px 8px rgba(0,0,0,.15);
+
 }
